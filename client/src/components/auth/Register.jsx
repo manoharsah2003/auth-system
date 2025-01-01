@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { registerUser } from '../../utils/mockAuth';
 import './AuthStyles.css';
 
 const Register = () => {
@@ -20,7 +20,7 @@ const Register = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         
         if (password !== confirmPassword) {
@@ -28,18 +28,11 @@ const Register = () => {
             return;
         }
 
-        try {
-            const res = await axios.post('/api/auth/register', {
-                username,
-                email,
-                password,
-                role
-            });
-
-            console.log('Registration successful:', res.data);
+        const result = registerUser(formData);
+        if (result.success) {
             navigate('/login');
-        } catch (err) {
-            setError(err.response?.data?.message || 'Registration failed');
+        } else {
+            setError(result.message);
         }
     };
 

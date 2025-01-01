@@ -96,3 +96,21 @@
     border-color: #667eea;
     outline: none;
 }
+.demo-credentials {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+
+.demo-credentials p {
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+
+.demo-credentials small {
+    display: block;
+    color: #666;
+    margin: 2px 0;
+}

@@ -1,129 +1,96 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiUsers, FiSettings, FiDatabase, FiActivity, FiLogOut } from 'react-icons/fi';
+import { logoutUser } from '../../utils/mockAuth';
 import './DashboardStyles.css';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
-    const [activeTab, setActiveTab] = useState('overview');
 
     useEffect(() => {
-        const savedUserData = localStorage.getItem('userData');
-        const token = localStorage.getItem('token');
-
-        if (!token || !savedUserData) {
+        const user = localStorage.getItem('user');
+        if (!user) {
             navigate('/login');
             return;
         }
 
         try {
-            setUserData(JSON.parse(savedUserData));
+            const parsedUser = JSON.parse(user);
+            if (parsedUser.role !== 'admin') {
+                navigate('/login');
+                return;
+            }
+            setUserData(parsedUser);
         } catch (error) {
             navigate('/login');
         }
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.clear();
+        logoutUser();
         navigate('/login');
     };
 
     if (!userData) return null;
 
     return (
-        <div className="dashboard-layout">
-            <aside className="sidebar">
-                <div className="sidebar-header">
-                    <h2>Admin Portal</h2>
-                </div>
-                <nav className="sidebar-nav">
-                    <button 
-                        className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('overview')}
-                    >
-                        <FiDatabase /> Overview
-                    </button>
-                    <button 
-                        className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('users')}
-                    >
-                        <FiUsers /> Users
-                    </button>
-                    <button 
-                        className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('settings')}
-                    >
-                        <FiSettings /> Settings
-                    </button>
-                    <button 
-                        className={`nav-item ${activeTab === 'logs' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('logs')}
-                    >
-                        <FiActivity /> Activity Logs
-                    </button>
-                </nav>
-                <div className="sidebar-footer">
-                    <button className="logout-btn" onClick={handleLogout}>
-                        <FiLogOut /> Logout
-                    </button>
-                </div>
-            </aside>
+        <div className="dashboard-container">
+            <nav className="dashboard-nav">
+                <h2>Admin Dashboard</h2>
+                <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </nav>
 
-            <main className="main-content">
-                <header className="content-header">
-                    <div className="header-title">
-                        <h1>Welcome, {userData.username}</h1>
-                        <p>Administrator Dashboard</p>
-                    </div>
-                    <div className="header-actions">
-                        <button className="action-btn success">New User</button>
-                        <button className="action-btn warning">Settings</button>
-                    </div>
-                </header>
-
-                <div className="dashboard-stats">
-                    <div className="stat-card">
-                        <div className="stat-icon users">
-                            <FiUsers />
-                        </div>
-                        <div className="stat-details">
-                            <h3>Total Users</h3>
-                            <p className="stat-number">1,234</p>
-                            <span className="stat-change positive">+12% this month</span>
-                        </div>
-                    </div>
-                    {/* Add more stat cards */}
+            <div className="dashboard-content">
+                <div className="welcome-section">
+                    <h1>Welcome, {userData.username}!</h1>
+                    <p>Role: Administrator</p>
                 </div>
 
                 <div className="dashboard-grid">
-                    <div className="grid-card">
-                        <h3>Recent Users</h3>
-                        <div className="user-list">
-                            <div className="user-item">
-                                <div className="user-info">
-                                    <span className="user-name">John Doe</span>
-                                    <span className="user-email">john@example.com</span>
-                                </div>
-                                <span className="user-role">Manager</span>
+                    <div className="dashboard-card">
+                        <h3>System Overview</h3>
+                        <div className="admin-stats">
+                            <div className="stat-item">
+                                <span className="stat-number">15</span>
+                                <span className="stat-label">Total Users</span>
                             </div>
-                            {/* Add more user items */}
+                            <div className="stat-item">
+                                <span className="stat-number">3</span>
+                                <span className="stat-label">Total Managers</span>
+                            </div>
+                            <div className="stat-item">
+                                <span className="stat-number">5</span>
+                                <span className="stat-label">Active Projects</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid-card">
-                        <h3>System Logs</h3>
+                    <div className="dashboard-card">
+                        <h3>User Management</h3>
+                        <div className="admin-controls">
+                            <button className="action-btn">Add New User</button>
+                            <button className="action-btn">Manage Roles</button>
+                            <button className="action-btn">View All Users</button>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-card">
+                        <h3>System Settings</h3>
+                        <div className="settings-controls">
+                            <button className="action-btn">Security Settings</button>
+                            <button className="action-btn">Email Configuration</button>
+                            <button className="action-btn">System Backup</button>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-card">
+                        <h3>Activity Logs</h3>
                         <div className="log-list">
-                            <div className="log-item">
-                                <span className="log-time">10:45 AM</span>
-                                <span className="log-message">New user registration</span>
-                                <span className="log-type info">INFO</span>
-                            </div>
-                            {/* Add more log items */}
+                            <p>Recent system activities and user logs will be displayed here.</p>
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 };

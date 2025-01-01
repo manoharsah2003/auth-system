@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { loginUser } from '../../utils/mockAuth';
 import './AuthStyles.css';
 
 const Login = () => {
@@ -17,34 +17,23 @@ const Login = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        try {
-            console.log('Attempting login...');
-            const res = await axios.post('/api/auth/login', {
-                email,
-                password
-            });
-            
-            console.log('Login response:', res.data);
-            
-            // Store the token and user data
-            localStorage.setItem('token', res.data.token);
-            localStorage.setItem('userRole', res.data.user.role);
-            localStorage.setItem('userData', JSON.stringify(res.data.user));
-
-            // Navigate based on role
-            if (res.data.user.role === 'admin') {
-                navigate('/admin-dashboard');
-            } else if (res.data.user.role === 'manager') {
-                navigate('/manager-dashboard');
-            } else {
-                navigate('/user-dashboard');
+        const result = loginUser(email, password);
+        
+        if (result.success) {
+            switch(result.user.role) {
+                case 'admin':
+                    navigate('/admin-dashboard');
+                    break;
+                case 'manager':
+                    navigate('/manager-dashboard');
+                    break;
+                default:
+                    navigate('/user-dashboard');
             }
-            
-        } catch (err) {
-            console.error('Login error:', err);
-            setError(err.response?.data?.message || 'Login failed');
+        } else {
+            setError(result.message);
         }
     };
 
@@ -81,6 +70,12 @@ const Login = () => {
                 <p className="auth-link">
                     Don't have an account? <Link to="/register">Register</Link>
                 </p>
+                <div className="demo-credentials">
+                    <p>Demo Credentials:</p>
+                    <small>Admin: admin@example.com / admin123</small><br />
+                    <small>Manager: manager@example.com / manager123</small><br />
+                    <small>User: user@example.com / user123</small>
+                </div>
             </div>
         </div>
     );
